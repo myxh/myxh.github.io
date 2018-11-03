@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title><![CDATA[Gradle加速]]></title>
+    <url>%2F2018%2F03%2F13%2FGradle%E5%8A%A0%E9%80%9F%2F</url>
+    <content type="text"><![CDATA[1. Gradle编译加速1.1 减少本地库依赖Gradle 在编译时会执行大量的 task, 同时生成许多中间文件, 导致磁盘IO拥堵造成编译速度变慢, 可以减少本地库依赖, 多使用 aar 进行依赖 1.2 minSdkVersion &gt;= 21当API 不小于21，使用 ART，在 Build 时只做 class to dex，不做 mergeing dex，会省下大量的时间。 1.3 开启 Gradle 的多线程和多核心支持在 gradle.properties 添加如下代码:123org.gradle.daemon=true #编译时使用守护进程。org.gradle.parallel=true #使用并行编译org.gradle.configureondemand=true #启用按需配置模式 org.gradle.configureondemand:按需配置模式按需配置模式尝试仅配置与请求任务相关的项目，即仅执行参与构建的项目的 build.gradle 文件. 这种模式会显著降低大型多项目构建的配置时间 同时, 在 build.gradle 中添加:1234dexOptions &#123; incremental true #开启Gradle增量编译 javaMaxHeapSize "4g" #增加编译内存&#125; 1.4 增加编译内存修改 gradle.properties 文件1234567systemProp.http.proxyHost=127.0.0.1#修改编译内存#org.gradle.jvmargs=-Xmx1536morg.gradle.jvmargs=-Xmx4g #Gradle中JVM最大允许分配的堆内存-XX:MaxPermSize=512m #Gradle中JVM最大允许分配的非堆内存systemProp.http.proxyPort=1080 1.5 不在 Gradle 脚本中使用终端指令在 Gradle 中调用终端指令会降低编译速度 2. Gradle task加速可以通过执行如下命令查看 gradle 中每个 task 的执行时间:1gradle build -profile 结果如下图所示:找出耗时较长的 task, 适当的禁用一些比较耗时而在 debug 阶段又不太需要的 task, 可以有效减少编译时间比如耗时较长的 lint 在 debug 阶段并不需要, 而 lint 是 Android Gradle Plugin 中的 task, 执行工程的编译脚本中无法获取到, 可以通过以下方式禁用: 1.通过 Gradle 编译参数通过如下命令编译: 1gradle build -x lint 2.在 Gradle 脚本中动态增加编译参数在 Project:build.gradle 中的 buildScript 中添加如下代码: 1gradle.startParameter.excludedTaskNames.add('lint') 另外, AAPT 检查也比较耗时, 在 debug 时可以通过以下代码禁用:123aaptOptions &#123; cruncherEnabled=false&#125;]]></content>
+      <tags>
+        <tag>Gradle</tag>
+      </tags>
+  </entry>
+</search>
